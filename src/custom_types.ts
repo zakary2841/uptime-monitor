@@ -212,7 +212,7 @@ export class Target {
       if (isOnline === false) {
         this.offlineSince = now()
         this.startAlert(refresh_ms)
-        console.log((this.longName() || `${this.name} (${this.id})`) + 'has been found offline, timer started.')
+        console.log(`\x1b[93m\n${this.longName() || `${this.name} (${this.id})`} has been found offline, timer started.\x1b[0m`) 
       }
     }
     this.interval = setInterval(watch, refresh_ms)
@@ -229,29 +229,55 @@ export class Target {
       const isOnline = await this.check()
       if (isOnline === true) {
         if (this.offlineSince && (+(now()) - +(this.offlineSince)) > this.timeout && this.lastMessage) {
-          this.lastMessage.edit(`:white_check_mark: \`${this.cachedUser ? longName(this.cachedUser) : this.name}\` is now back online!`)
+          await this.lastMessage.delete()                        // Remove message so user gets pinged when online
           this.lastMessage = undefined
-          console.log((this.longName() || `${this.name} (${this.id})`) + ' has come back online, notification updated.')
+          
+          const downtime = now() - this.offlineSince;            // Calculate the downtime (in milliseconds)
+          const totalMinutes = Math.floor(downtime / 60000);     // Convert downtime from milliseconds to total minutes
+
+                                                                 // Calculate days, hours, and minutes
+          const days = Math.floor(totalMinutes / 1440);          // 1 day = 1440 minutes
+          const hours = Math.floor((totalMinutes % 1440) / 60);  // Remaining minutes after dividing by 1440, then divide by 60 for hours
+          const minutes = totalMinutes % 60;                     // Remainder after dividing by 60 gives the minutes
+     
+          const downtimeStr = [                                  // Create a downtime string based on the computed time components
+            days > 0 ? `${days} day(s)` : null,
+            hours > 0 ? `${hours} hour(s)` : null,
+            minutes > 0 || (!days && !hours) ? `${minutes} minute(s)` : null
+          ].filter(Boolean).join(', ');                          // Only include non-null components and join them with commas
+		  
+          let message = await send_to.send(`:white_check_mark: \`${this.cachedUser ? longName(this.cachedUser) : this.name}\` is now back online! Offline for ${downtimeStr}.`);                                       // Send a message indicating that the bot is back online with the formatted downtime string instead of just minutes
+          this.lastMessage = message;
+          console.log(`\x1b[92m\n${this.longName() || `${this.name} (${this.id})`} has come back online, notification sent.\x1b[0m`); // Changed log message to include colors
         }
-        this.offlineSince = undefined
-        this.startWatching(refresh_ms)
-      } else if (isOnline === false) {
-        if (!this.offlineSince) {
-          this.offlineSince = now()
-          console.log((this.longName() || `${this.name} (${this.id})`) + ' has gone offline, starting downtime tracking.')
-        }
-        if ((+(now()) - +(this.offlineSince)) > this.timeout * 60000 && !this.lastMessage) {
-          let message = await send_to.send(`:red_circle: \`${this.cachedUser ? longName(this.cachedUser) : this.name}\` has been offline for \`${this.getDowntime()}\` minutes.`)
+          this.offlineSince = undefined
+          this.startWatching(refresh_ms)
+        } else if (isOnline === false) {
+          if (!this.offlineSince) {
+            this.offlineSince = now()
+            console.log(`\x1b[93m\n${this.longName() || `${this.name} (${this.id})`} has been found offline, timer started.\x1b[0m`)
+          }
+          const downtime = +(now()) - +(this.offlineSince)
+          const totalMinutes = Math.floor(downtime / 60000);
+          let days = Math.floor(totalMinutes / 1440);
+          let hours = Math.floor((totalMinutes % 1440) / 60);
+          let minutes = totalMinutes % 60;
+
+        const downtimeStr = days > 0 ? `${days} day(s), ${hours} hour(s), and ${minutes} minute(s)` :
+          (hours > 0 ? `${hours} hour(s) and ${minutes} minute(s)` : `${minutes} minute(s)`);
+
+        if (downtime > this.timeout * 60000 && !this.lastMessage) {
+          let message = await send_to.send(`:red_circle: \`${this.cachedUser ? longName(this.cachedUser) : this.name}\` has been offline for \`${downtimeStr}\`.`)
           if (message instanceof Array) message = message[0]
           this.lastMessage = message
-          console.log((this.longName() || `${this.name} (${this.id})`) + ` has exceeded maximum time, notification sent after ${this.getDowntime()} minutes.`)
+          console.log(`\x1b[91m\n${this.longName() || `${this.name} (${this.id})`} has exceeded maximum time, notification sent after ${downtimeStr}.\x1b[0m`)
         } else if (this.lastMessage) {
-          const str = `:red_circle: \`${this.cachedUser ? longName(this.cachedUser) : this.name}\` has been offline for \`${this.getDowntime()}\` minutes.`
+          const str = `:red_circle: \`${this.cachedUser ? longName(this.cachedUser) : this.name}\` has been offline for \`${downtimeStr}\`.`
           if (str != this.lastMessage.content) {
             let msg = await this.lastMessage.edit(str)
             if (msg instanceof Array) msg = msg[0]
             this.lastMessage = msg
-            console.log((this.longName() || `${this.name} (${this.id})`) + ` has been offline for ${this.getDowntime()} minutes, message updated.`)
+            console.log(`\x1b[96m\n${this.longName() || `${this.name} (${this.id})`} has been offline for ${downtimeStr}, notification updated.\x1b[0m`)
           }
         }
       }
