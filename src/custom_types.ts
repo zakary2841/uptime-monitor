@@ -231,30 +231,35 @@ export class Target {
         if (this.offlineSince && (+(now()) - +(this.offlineSince)) > this.timeout && this.lastMessage) {
           this.lastMessage.edit(`:white_check_mark: \`${this.cachedUser ? longName(this.cachedUser) : this.name}\` is now back online!`)
           this.lastMessage = undefined
+          console.log((this.longName() || `${this.name} (${this.id})`) + ' has come back online, notification updated.')
         }
         this.offlineSince = undefined
         this.startWatching(refresh_ms)
-        console.log((this.longName() || `${this.name} (${this.id})`) + 'has come back online, alert canceled.')
       } else if (isOnline === false) {
-        if (!this.offlineSince) this.offlineSince = now()
+        if (!this.offlineSince) {
+          this.offlineSince = now()
+          console.log((this.longName() || `${this.name} (${this.id})`) + ' has gone offline, starting downtime tracking.')
+        }
         if ((+(now()) - +(this.offlineSince)) > this.timeout * 60000 && !this.lastMessage) {
           let message = await send_to.send(`:red_circle: \`${this.cachedUser ? longName(this.cachedUser) : this.name}\` has been offline for \`${this.getDowntime()}\` minutes.`)
           if (message instanceof Array) message = message[0]
           this.lastMessage = message
+          console.log((this.longName() || `${this.name} (${this.id})`) + ` has exceeded maximum time, notification sent after ${this.getDowntime()} minutes.`)
         } else if (this.lastMessage) {
           const str = `:red_circle: \`${this.cachedUser ? longName(this.cachedUser) : this.name}\` has been offline for \`${this.getDowntime()}\` minutes.`
           if (str != this.lastMessage.content) {
             let msg = await this.lastMessage.edit(str)
             if (msg instanceof Array) msg = msg[0]
             this.lastMessage = msg
+            console.log((this.longName() || `${this.name} (${this.id})`) + ` has been offline for ${this.getDowntime()} minutes, message updated.`)
           }
         }
-        console.log((this.longName() || `${this.name} (${this.id})`) + 'has exceeded maximum time, notification sent.')
       }
     }
     this.interval = setInterval(alert, refresh_ms)
     alert()
-  }
+}
+
 
   /**
    * Clears the current interval.
