@@ -23,5 +23,6 @@ const bot = new UptimeMonitor.Bot({
       type: 'WATCHING'
     }
   },
+  deleteMessageOnOnline: false, // Do you want the bot to ping you when online or just edit the message
   token: 'Your bot\'s token'
 })

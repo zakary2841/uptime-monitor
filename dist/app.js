@@ -14,7 +14,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     function verb(n) { return function (v) { return step([n, v]); }; }
     function step(op) {
         if (f) throw new TypeError("Generator is already executing.");
-        while (_) try {
+        while (g && (g = 0, op[0] && (_ = 0)), _) try {
             if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
             if (y = 0, t) op = [op[0] & 2, t.value];
             switch (op[0]) {
@@ -202,7 +202,7 @@ function loadSendTo() {
                     return [2 /*return*/, user];
                 case 3:
                     error_2 = _a.sent();
-                    throw new Error("The bot can't find any user with this id: '" + userID + "'. Please check your settings: if you left the 'send_to' field empty then check the owner id; if you wrote a channel id, rewrite that as 'guildID/channelID'.");
+                    throw new Error("The bot can't find any user with this id: '".concat(userID, "'. Please check your settings: if you left the 'send_to' field empty then check the owner id; if you wrote a channel id, rewrite that as 'guildID/channelID'."));
                 case 4: return [3 /*break*/, 7];
                 case 5:
                     guildID = splitted[0], channelID = splitted[1];
@@ -212,16 +212,16 @@ function loadSendTo() {
                     if (guild) {
                         channel = guild.channels.cache.get(channelID);
                         if (channel) {
-                            if (custom_types_1.isTextChannel(channel))
+                            if ((0, custom_types_1.isTextChannel)(channel))
                                 return [2 /*return*/, channel];
                             else
-                                throw new Error("The bot has found your channel, but doesn't seem to be a text channel: type " + channel.type + ". Please check your channel ID.");
+                                throw new Error("The bot has found your channel, but doesn't seem to be a text channel: type ".concat(channel.type, ". Please check your channel ID."));
                         }
                         else
-                            throw new Error("The bot can't find any channel with this id in your guild (" + guildID + "): '" + channelID + "'. Please check your settings: it should be written as 'guildID/channelID'.'");
+                            throw new Error("The bot can't find any channel with this id in your guild (".concat(guildID, "): '").concat(channelID, "'. Please check your settings: it should be written as 'guildID/channelID'.'"));
                     }
                     else
-                        throw new Error("The bot can't find any guild with this id: '" + guildID + "'. Please check your settings: it should be written as 'guildID/channelID'.");
+                        throw new Error("The bot can't find any guild with this id: '".concat(guildID, "'. Please check your settings: it should be written as 'guildID/channelID'."));
                     _a.label = 7;
                 case 7: return [2 /*return*/];
             }
@@ -264,9 +264,9 @@ function loadTargets() {
                         msg = 'The following targets have been rejected:';
                         for (_b = 0, rejected_1 = rejected; _b < rejected_1.length; _b++) {
                             rejection = rejected_1[_b];
-                            msg += "\n`" + rejection.target[0] + " (" + rejection.target[1] + ")` -> " + rejection.reason;
+                            msg += "\n`".concat(rejection.target[0], " (").concat(rejection.target[1], ")` -> ").concat(rejection.reason);
                         }
-                        msg += (result.length ? "\n`" + result.length + "` targets have been loaded." : 'No other targets have been loaded.');
+                        msg += (result.length ? "\n`".concat(result.length, "` targets have been loaded.") : 'No other targets have been loaded.');
                         exports.send_to.send(msg);
                         exports.client.emit('error', new Error(msg));
                     }

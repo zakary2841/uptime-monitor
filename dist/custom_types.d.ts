@@ -1,6 +1,41 @@
 /// <reference types="node" />
 import { ActivityType, TextChannel, Message, User } from 'discord.js';
 /**
+ * Interface that makes you quickly add targets in the settings.
+ */
+export interface TargetLike extends Array<any> {
+    /**
+     * A codename that will help recognize the target (only for debugging purposes).
+     */
+    0: string;
+    /**
+     * The ID of the target. Make sure the target is connected to the bot through at least one guild.
+     */
+    1: string;
+    /**
+     * The number of minutes the target has to be offline before the bot notifies you.
+     */
+    2: number;
+    length: 3;
+}
+/**
+ * Interface for a custom status from the settings.
+ */
+export interface Status {
+    /**
+     * Custom text to show after the type part.
+     */
+    name: string;
+    /**
+     * By default: `"PLAYING"`.
+     */
+    type?: ActivityType;
+    /**
+     * By default: `undefined`
+     */
+    url?: string;
+}
+/**
  * Interface for the settings you use to start the bot.
  */
 export interface Settings {
@@ -86,47 +121,12 @@ export interface CheckedSettings {
     token: string;
 }
 /**
- * Interface for a custom status from the settings.
- */
-export interface Status {
-    /**
-     * Custom text to show after the type part.
-     */
-    name: string;
-    /**
-     * By default: `"PLAYING"`.
-     */
-    type?: ActivityType;
-    /**
-     * By default: `undefined`
-     */
-    url?: string;
-}
-/**
- * Interface that makes you quickly add targets in the settings.
- */
-export interface TargetLike extends Array<any> {
-    /**
-     * A codename that will help recognize the target (only for debugging purposes).
-     */
-    0: string;
-    /**
-     * The ID of the target. Make sure the target is connected to the bot through at least one guild.
-     */
-    1: string;
-    /**
-     * The number of minutes the target has to be offline before the bot notifies you.
-     */
-    2: number;
-    length: 3;
-}
-/**
  * Class for every accepted target.
  */
 export declare class Target {
     /**
-    * A codename that identifies the target (only for debugging purposes).
-    */
+     * A codename that identifies the target (only for debugging purposes).
+     */
     name: string;
     /**
      * The Discord ID of the target.
@@ -137,7 +137,7 @@ export declare class Target {
      */
     timeout: number;
     /**
-     * The currrently active interval (both 'watch' and 'alert' intervals get stored here).
+     * The currently active interval (both 'watch' and 'alert' intervals get stored here).
      */
     interval?: NodeJS.Timeout;
     /**
@@ -149,6 +149,12 @@ export declare class Target {
      */
     lastMessage?: Message;
     /**
+     * Configuration settings for handling notifications.
+     */
+    config: {
+        deleteMessageOnOnline: boolean;
+    };
+    /**
      * The last user object found for the target.
      */
     cachedUser?: User;
@@ -156,8 +162,11 @@ export declare class Target {
      * @param name A codename that will help recognize the target (only for debugging purposes).
      * @param id The ID of the target. Make sure the target is connected to the bot through at least one guild.
      * @param timeout The number of minutes the target has to be offline before the bot notifies you.
+     * @param config Optional configuration settings for notification behavior.
      */
-    constructor(name: string, id: string, timeout: number);
+    constructor(name: string, id: string, timeout: number, config?: {
+        deleteMessageOnOnline: boolean;
+    });
     /**
      * Starts watching for the target to go offline.
      * @param refresh_ms The number of ms to run the cycle with.
@@ -173,7 +182,7 @@ export declare class Target {
      */
     stop(): void;
     /**
-     * Returns whether the target is online; if the target is unreachable it stop monitoring it.
+     * Returns whether the target is online; if the target is unreachable it stops monitoring it.
      */
     check(): Promise<boolean | undefined>;
     /**

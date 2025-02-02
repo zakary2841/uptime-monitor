@@ -35,7 +35,7 @@
     ],
     "new-cap": 0,
     "no-caller": 2,
-    "no-undef": 2,
+    "no-undef": "off",
     "no-unused-vars": 0,
     "@typescript-eslint/no-unused-vars-experimental": 1,
     "no-empty": [
