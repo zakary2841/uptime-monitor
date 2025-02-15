@@ -91,15 +91,15 @@ var Target = /** @class */ (function () {
         var _this = this;
         this.stop();
         var alert = function () { return __awaiter(_this, void 0, void 0, function () {
-            var isOnline, downtime, totalMinutes, days, hours, minutes, downtimeStr, message, message, downtime, totalMinutes, days, hours, minutes, downtimeStr, message, str, msg;
-            var _a;
-            return __generator(this, function (_b) {
-                switch (_b.label) {
+            var isOnline, downtime, totalMinutes, days, hours, minutes, downtimeStr, _a, _b, _c, downtime, totalMinutes, days, hours, minutes, downtimeStr, _d, str, _e;
+            var _f;
+            return __generator(this, function (_g) {
+                switch (_g.label) {
                     case 0: return [4 /*yield*/, this.check()];
                     case 1:
-                        isOnline = _b.sent();
+                        isOnline = _g.sent();
                         if (!(isOnline === true)) return [3 /*break*/, 8];
-                        if (!(this.offlineSince && (+(now()) - +(this.offlineSince)) > this.timeout && this.lastMessage)) return [3 /*break*/, 7];
+                        if (!this.offlineSince) return [3 /*break*/, 7];
                         downtime = Date.now() - this.offlineSince.getTime() // Calculate the downtime (in milliseconds)
                         ;
                         totalMinutes = Math.floor(downtime / 60000) // Convert downtime from milliseconds to total minutes
@@ -117,31 +117,41 @@ var Target = /** @class */ (function () {
                         ].filter(Boolean).join(', ') // Only include non-null components and join them with commas
                         ;
                         if (!this.config.deleteMessageOnOnline) return [3 /*break*/, 4];
-                        return [4 /*yield*/, ((_a = this.lastMessage) === null || _a === void 0 ? void 0 : _a.delete())]; // Remove message so user gets pinged when online
+                        return [4 /*yield*/, ((_f = this.lastMessage) === null || _f === void 0 ? void 0 : _f.delete())]; // Remove message so user gets pinged when online
                     case 2:
-                        _b.sent(); // Remove message so user gets pinged when online
+                        _g.sent(); // Remove message so user gets pinged when online
+                        _a = this;
                         return [4 /*yield*/, app_1.send_to.send(":white_check_mark: `".concat(this.cachedUser ? longName(this.cachedUser) : this.name, "` is now back online! Offline for ").concat(downtimeStr, "."))];
                     case 3:
-                        message = _b.sent();
-                        this.lastMessage = message;
+                        _a.lastMessage = _g.sent();
                         return [3 /*break*/, 6];
-                    case 4: return [4 /*yield*/, app_1.send_to.send(":white_check_mark: `".concat(this.cachedUser ? longName(this.cachedUser) : this.name, "` is now back online! Offline for ").concat(downtimeStr, "."))];
+                    case 4:
+                        _b = this;
+                        return [4 /*yield*/, app_1.send_to.send(":white_check_mark: `".concat(this.cachedUser ? longName(this.cachedUser) : this.name, "` is now back online! Offline for ").concat(downtimeStr, "."))];
                     case 5:
-                        message = _b.sent();
-                        this.lastMessage = message;
-                        _b.label = 6;
+                        _b.lastMessage = _g.sent();
+                        _g.label = 6;
                     case 6:
                         this.offlineSince = undefined;
+                        this.lastMessage = undefined; // Reset so new offline events create a message
                         this.startWatching(refresh_ms);
                         console.log("\u001B[92m\n".concat(this.longName() || "".concat(this.name, " (").concat(this.id, ")"), " has come back online, notification updated.\u001B[0m"));
-                        _b.label = 7;
-                    case 7: return [3 /*break*/, 12];
+                        _g.label = 7;
+                    case 7: return [3 /*break*/, 14];
                     case 8:
-                        if (!(isOnline === false)) return [3 /*break*/, 12];
-                        if (!this.offlineSince) {
-                            this.offlineSince = now();
-                            console.log("\u001B[93m\n".concat(this.longName() || "".concat(this.name, " (").concat(this.id, ")"), " has been found offline, timer started.\u001B[0m"));
-                        }
+                        if (!(isOnline === false)) return [3 /*break*/, 14];
+                        if (!!this.offlineSince) return [3 /*break*/, 10];
+                        this.offlineSince = now(); // Start offline timer
+                        console.log("\u001B[93m\n".concat(this.longName() || "".concat(this.name, " (").concat(this.id, ")"), " has been found offline, timer started.\u001B[0m"));
+                        // First-time offline message
+                        _c = this;
+                        return [4 /*yield*/, app_1.send_to.send(":red_circle: `".concat(this.cachedUser ? longName(this.cachedUser) : this.name, "` has just gone offline."))];
+                    case 9:
+                        // First-time offline message
+                        _c.lastMessage = _g.sent();
+                        console.log("\u001B[91m\n".concat(this.longName() || "".concat(this.name, " (").concat(this.id, ")"), " has gone offline, new notification sent.\u001B[0m"));
+                        return [3 /*break*/, 14];
+                    case 10:
                         downtime = +(now()) - +(this.offlineSince);
                         totalMinutes = Math.floor(downtime / 60000);
                         days = Math.floor(totalMinutes / 1440);
@@ -149,28 +159,23 @@ var Target = /** @class */ (function () {
                         minutes = totalMinutes % 60;
                         downtimeStr = days > 0 ? "".concat(days, " day(s), ").concat(hours, " hour(s), and ").concat(minutes, " minute(s)") :
                             (hours > 0 ? "".concat(hours, " hour(s) and ").concat(minutes, " minute(s)") : "".concat(minutes, " minute(s)"));
-                        if (!(downtime > this.timeout * 60000 && !this.lastMessage)) return [3 /*break*/, 10];
+                        if (!(downtime > this.timeout * 60000 && !this.lastMessage)) return [3 /*break*/, 12];
+                        _d = this;
                         return [4 /*yield*/, app_1.send_to.send(":red_circle: `".concat(this.cachedUser ? longName(this.cachedUser) : this.name, "` has been offline for `").concat(downtimeStr, "`."))];
-                    case 9:
-                        message = _b.sent();
-                        if (message instanceof Array)
-                            message = message[0];
-                        this.lastMessage = message;
-                        console.log("\u001B[91m\n".concat(this.longName() || "".concat(this.name, " (").concat(this.id, ")"), " has exceeded maximum time, notification sent after ").concat(downtimeStr, ".\u001B[0m"));
-                        return [3 /*break*/, 12];
-                    case 10:
-                        if (!this.lastMessage) return [3 /*break*/, 12];
-                        str = ":red_circle: `".concat(this.cachedUser ? longName(this.cachedUser) : this.name, "` has been offline for `").concat(downtimeStr, "`.");
-                        if (!(str != this.lastMessage.content)) return [3 /*break*/, 12];
-                        return [4 /*yield*/, this.lastMessage.edit(str)];
                     case 11:
-                        msg = _b.sent();
-                        if (msg instanceof Array)
-                            msg = msg[0];
-                        this.lastMessage = msg;
+                        _d.lastMessage = _g.sent();
+                        console.log("\u001B[91m\n".concat(this.longName() || "".concat(this.name, " (").concat(this.id, ")"), " has exceeded maximum time, notification sent after ").concat(downtimeStr, ".\u001B[0m"));
+                        _g.label = 12;
+                    case 12:
+                        str = ":red_circle: `".concat(this.cachedUser ? longName(this.cachedUser) : this.name, "` has been offline for `").concat(downtimeStr, "`.");
+                        if (!(this.lastMessage && str !== this.lastMessage.content)) return [3 /*break*/, 14];
+                        _e = this;
+                        return [4 /*yield*/, this.lastMessage.edit(str)];
+                    case 13:
+                        _e.lastMessage = _g.sent();
                         console.log("\u001B[96m\n".concat(this.longName() || "".concat(this.name, " (").concat(this.id, ")"), " has been offline for ").concat(downtimeStr, ", notification updated.\u001B[0m"));
-                        _b.label = 12;
-                    case 12: return [2 /*return*/];
+                        _g.label = 14;
+                    case 14: return [2 /*return*/];
                 }
             });
         }); };
